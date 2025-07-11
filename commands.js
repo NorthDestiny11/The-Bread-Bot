@@ -59,6 +59,11 @@ const commands = [
         .setDescription("The text that you wish to translate!")
         .setRequired(true)
     ),
+  new SlashCommandBuilder()
+    .setName("get-roasted")
+    .setDescription(
+      "I reckon you should figure out what this does by yourself."
+    ),
 ].map((command) => command.toJSON());
 
 const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);

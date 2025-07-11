@@ -286,6 +286,15 @@ client.on("interactionCreate", async (interaction) => {
       `🎉 Your translated message is: **${finalTranslation}**!`
     );
   }
+
+  if (interaction.commandName === "get-roasted") {
+    const roastsData = fs.readFileSync("./roasts.json", "utf-8");
+    const { roasts } = JSON.parse(roastsData);
+
+    const roast = roasts[Math.floor(Math.random() * roasts.length)];
+
+    await interaction.reply(`${roast}`);
+  }
 });
 
 client.login(process.env.DISCORD_TOKEN);
