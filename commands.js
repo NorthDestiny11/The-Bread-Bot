@@ -52,6 +52,12 @@ const commands = [
           { name: "english-to-breadish", value: "ETB" },
           { name: "breadish-to-english", value: "BTE" }
         )
+    )
+    .addStringOption((option) =>
+      option
+        .setName("text")
+        .setDescription("The text that you wish to translate!")
+        .setRequired(true)
     ),
 ].map((command) => command.toJSON());
 

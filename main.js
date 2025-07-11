@@ -51,7 +51,7 @@ client.on("interactionCreate", async (interaction) => {
     });
 
   if (interaction.commandName === "add-word") {
-    if (interaction.channel?.name != "📖-the-dictionary-of-breadism") {
+    if (interaction.channel?.id !== process.env.DICTIONARY_ID) {
       await interaction.reply({
         content: "That command cannot be used in this channel.",
         flags: Discord.MessageFlags.Ephemeral,
@@ -132,6 +132,14 @@ client.on("interactionCreate", async (interaction) => {
   }
 
   if (interaction.commandName === "remove-word") {
+    if (interaction.channel?.id !== process.env.DICTIONARY_ID) {
+      await interaction.reply({
+        content: "That command cannot be used in this channel.",
+        flags: Discord.MessageFlags.Ephemeral,
+      });
+      return;
+    }
+
     const breadWord = interaction.options
       .getString("breadish-word")
       .toLowerCase();
@@ -176,6 +184,14 @@ client.on("interactionCreate", async (interaction) => {
   }
 
   if (interaction.commandName === "search") {
+    if (interaction.channel?.id !== process.env.DICTIONARY_ID) {
+      await interaction.reply({
+        content: "That command cannot be used in this channel.",
+        flags: Discord.MessageFlags.Ephemeral,
+      });
+      return;
+    }
+
     const word = interaction.options.getString("english-word").toLowerCase();
 
     const lines = fs
@@ -199,6 +215,76 @@ client.on("interactionCreate", async (interaction) => {
       content: `The Breadish translation for '${word}' is **${entry.bread}**.`,
       flags: Discord.MessageFlags.Ephemeral,
     });
+  }
+
+  if (interaction.commandName === "translate") {
+    if (interaction.channel?.id !== process.env.DICTIONARY_ID) {
+      await interaction.reply({
+        content: "That command cannot be used in this channel.",
+        flags: Discord.MessageFlags.Ephemeral,
+      });
+      return;
+    }
+
+    const lines = fs
+      .readFileSync(dictionaryOfBread, "utf-8")
+      .split("\n")
+      .filter(Boolean);
+
+    const dictionary = lines.map((line) => JSON.parse(line));
+
+    let translationMode = interaction.options.getString("mode");
+
+    let text = interaction.options.getString("text").toLowerCase();
+
+    let modifiedText = [...text]
+      .map((char) => (allowedCharacters.includes(char) ? char : " "))
+      .join("")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    let words = modifiedText.split(" ").filter((word) => word.length > 0);
+
+    let translatedWords = [];
+    let unknownWords = [];
+
+    for (let i = 0; i < words.length; i++) {
+      let currentWord = words[i];
+      let entry;
+
+      if (translationMode === "ETB") {
+        entry = dictionary.find((entry) => entry.english === currentWord);
+        translatedWords.push(entry ? entry.bread : `currentWord`);
+      } else if (translationMode === "BTE") {
+        entry = dictionary.find((entry) => entry.bread === currentWord);
+        translatedWords.push(entry ? entry.english : `currentWord`);
+      } else {
+        await interaction.reply(
+          "This error is so stupid, it doesn't even need an error. Figure out yourself."
+        );
+        return;
+      }
+
+      if (!entry) unknownWords.push(currentWord);
+    }
+
+    if (unknownWords.length > 0) {
+      const uniqueUnknownWords = [...new Set(unknownWords)];
+
+      await interaction.reply({
+        content: `The word/s **${uniqueUnknownWords.join(
+          ", "
+        )}** do not exist. Please add the missing words with\`/add-word\`!`,
+        flags: Discord.MessageFlags.Ephemeral,
+      });
+      return;
+    }
+
+    const finalTranslation = translatedWords.join(" ");
+
+    await interaction.reply(
+      `🎉 Your translated message is: **${finalTranslation}**!`
+    );
   }
 });
 
