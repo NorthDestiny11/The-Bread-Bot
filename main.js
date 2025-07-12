@@ -6,7 +6,7 @@ require("dotenv").config({ path: "./botSecrets.env" });
 const dictionaryOfBread = "./breadDictionary.jsonl";
 
 const maxLength = 50;
-const allowedCharacters = [..."abcdefghijklmnopqrstuvwxyz'"];
+const allowedCharacters = [..."abcdefghijklmnopqrstuvwxyz"];
 
 const client = new Discord.Client({
   allowedMentions: {
