@@ -1,5 +1,7 @@
 *.env
 *.jsonl
 /node_modules
+/.vscode
 /package-lock.json
 /roasts.json
+/TODO.md
